@@ -1,67 +1,54 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import MovieCard from "./MovieCard";
-import { prototype } from "module";
-
-export default class Movie extends React.Component {
+const Movie = (props) => {
   
-  constructor(props) {
-    super(props);
-    this.state = {
-      movie: null
-    };
-  }
-
-  componentDidMount() {
-    this.fetchMovie(this.props.match.params.id);
-  }
-
+const [movie, setMovie] = useState(null);
+  useEffect(()=> {
+      fetchMovie(props.match.params.id)
+  }, [])
   
-  componentWillReceiveProps(newProps) {
-    if (this.props.match.params.id !== newProps.match.params.id) {
-      this.fetchMovie(newProps.match.params.id);
-    }
-  }
   
-  fetchMovie = id => {
+  useEffect(() => {
+        fetchMovie(props.match.params.id);
+}, [props])
+  
+  const fetchMovie = id => {
     axios
     .get(`http://localhost:5000/api/movies/${id}`)
-    .then(res => this.setState({ movie: res.data }))
+    .then(res => setMovie(res.data))
     .catch(err => console.log(err.response));
   };
   
-  saveMovie = () => {
-    const addToSavedList = this.props.addToSavedList;
-    addToSavedList(this.state.movie);
+  const saveMovie = () => {
+    const addToSavedList = props.addToSavedList;
+    addToSavedList(movie);
   };
   
 //--------------------------------------------------------------------
-  handleDelete = e => {
+  const handleDelete = e => {
     e.preventDefault();
+    const movie = props.movies.find(
+      thing => `${thing.id}` === props.match.params.id
+    )
     return axios
-    .delete(`http://localhost:5000/api/movies/${this.state.movie.id}`)
+    .delete(`http://localhost:5000/api/movies/${movie.id}`)
     .then(res => 
-    this.props.history.push("/")
+    props.history.push("/movies")
     )
     .catch(err => console.log(err))
   }
 //--------------------------------------------------------------------
-
-  render() {
-    if (!this.state.movie) {
+    if (!movie) {
       return <div>Loading movie information...</div>;
     }
-
-
-    
-
     return (
       <div className="save-wrapper">
-        <MovieCard movie={this.state.movie} />
-        <div className="save-button" onClick={this.saveMovie}>
+        <MovieCard movie={movie} movies={props.movies} />
+        <div className="save-button" onClick={saveMovie}>
           Save
         </div>
-        <div className="del-button" onClick={this.handleDelete} >
+        <div className="del-button" onClick={handleDelete} >
           Delete
         </div>
         <div className="edit-button"  >
@@ -69,5 +56,5 @@ export default class Movie extends React.Component {
         </div>
       </div>
     );
-  }
 }
+export default Movie;
