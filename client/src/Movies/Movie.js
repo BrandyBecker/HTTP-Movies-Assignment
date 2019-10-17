@@ -33,7 +33,7 @@ const [movie, setMovie] = useState(null);
     )
     return axios
     .delete(`http://localhost:5000/api/movies/${movie.id}`)
-    .then(res => 
+    .then(res => console.log(res),
     props.history.push("/movies")
     )
     .catch(err => console.log(err))
@@ -51,7 +51,8 @@ const [movie, setMovie] = useState(null);
         <div className="del-button" onClick={handleDelete} >
           Delete
         </div>
-        <div className="edit-button"  >
+        <div className="edit-button"  
+         onClick={() => props.history.push(`/update-movie/${movie.id}`)}>
           Edit
         </div>
       </div>
